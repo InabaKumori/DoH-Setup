@@ -124,6 +124,25 @@ If you wish to modify the DoH servers or add new ones, you can edit the `start_h
 
 Make sure to update the corresponding `server` lines in the `/etc/dnsmasq.conf` file if you modify the ports.
 
+## Enabling at Startup
+
+To ensure the DNS over HTTPS (DoH) service starts automatically upon system reboot, you can add a crontab entry. This setup enables the DoH service without manual intervention every time your system starts.
+
+Follow these steps to set up automatic startup:
+
+1. Open your crontab file for editing by running the command: `crontab -e`
+2. Add the following line to the crontab file:
+
+```
+@reboot /bin/echo "1" | /bin/bash ~/doh-setup.sh
+```
+
+This line uses `@reboot`, which executes the specified command once, right after the system boots up. The command echoes "1" into your `doh-setup.sh` script assuming it's designed to enable the DoH service when receiving "1" as an input. Adjust the path `~/doh-setup.sh` if your script is located elsewhere or named differently.
+
+3. Save and close the crontab file. The changes will take effect at the next system startup.
+
+By following these steps, your system will automatically enable the DoH service each time it boots, ensuring continuous protection and privacy for your DNS queries.
+
 ## Contributing
 
 Contributions to this project are welcome! If you find any bugs, have suggestions for improvements, or want to add new features, please open an issue or submit a pull request on the GitHub repository.
