@@ -26,8 +26,8 @@ if ! grep -q "^server=127.0.0.1#5053" /etc/dnsmasq.conf; then
 fi
 # Create a function to start the https-dns-proxy instances
 start_https_dns_proxy() {
-    sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "8.8.8.8,8.8.4.4" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
     sudo https_dns_proxy -a 127.0.0.1 -p 5054 -b "1.1.1.1,1.0.0.1" -r "https://cloudflare-dns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5054.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "8.8.8.8,8.8.4.4" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
     sudo https_dns_proxy -a 127.0.0.1 -p 5055 -b "119.29.29.29" -r "https://doh.pub/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5055.log 2>&1 &
     sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "223.5.5.5,223.6.6.6" -r "https://dns.alidns.com" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
 }
