@@ -29,7 +29,8 @@ start_https_dns_proxy() {
     sudo https_dns_proxy -a 127.0.0.1 -p 5054 -b "1.1.1.1,1.0.0.1" -r "https://cloudflare-dns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5054.log 2>&1 &
     sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "8.8.8.8,8.8.4.4" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
     sudo https_dns_proxy -a 127.0.0.1 -p 5055 -b "119.29.29.29" -r "https://doh.pub/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5055.log 2>&1 &
-    sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "223.5.5.5,223.6.6.6" -r "https://dns.alidns.com" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "223.5.5.5,223.6.6.6" -r "https://dns.alidns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
+    # ali-dns may require manual intervention
 }
 # Create a function to stop the https-dns-proxy instances
 stop_https_dns_proxy() {
