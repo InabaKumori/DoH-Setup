@@ -25,16 +25,31 @@ if ! grep -q "^server=127.0.0.1#5053" /etc/dnsmasq.conf; then
     sudo sed -i '/^server=127.0.0.1#5056/a dns-forward-max=1000' /etc/dnsmasq.conf
 fi
 # Create a function to start the https-dns-proxy instances
-start_https_dns_proxy() {
-    sudo https_dns_proxy -a 127.0.0.1 -p 5054 -b "1.1.1.1,1.0.0.1" -r "https://cloudflare-dns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5054.log 2>&1 &
-    sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "8.8.8.8,8.8.4.4" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
-    sudo https_dns_proxy -a 127.0.0.1 -p 5055 -b "119.29.29.29" -r "https://doh.pub/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5055.log 2>&1 &
-    sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "223.5.5.5,223.6.6.6" -r "https://dns.alidns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
+start_https_dns_proxy_proxy () {
+    sudo https_dns_proxy -a 127.0.0.1 -p 5054 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://cloudflare-dns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5054.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
     # ali-dns may require manual intervention
 }
+
+# Create a function to start the https-dns-proxy instances
+start_https_dns_proxy_direct () {
+    sudo https_dns_proxy -a 127.0.0.1 -p 5055 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://doh.pub/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5055.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://******.alidns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
+    # ali-dns may require manual intervention
+}
+
+# Create a function to start the https-dns-proxy instances
+start_https_dns_proxy() {
+    sudo https_dns_proxy -a 127.0.0.1 -p 5054 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://cloudflare-dns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5054.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5053 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://dns.google/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5053.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5055 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://doh.pub/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5055.log 2>&1 &
+    sudo https_dns_proxy -a 127.0.0.1 -p 5056 -b "119.29.29.29,223.6.6.6,8.8.8.8" -r "https://******.dns.alidns.com/dns-query" -d -u nobody -g nogroup -v >> /var/log/https_dns_proxy_5056.log 2>&1 &
+    # ali-dns may require manual intervention
+}
+
 # Create a function to stop the https-dns-proxy instances
 stop_https_dns_proxy() {
-    sudo pkill -f https_dns_proxy
+    sudo pkill -f https_dns
 }
 # Create the DoH verification script
 sudo tee /usr/local/bin/doh-verification > /dev/null <<EOT
@@ -91,8 +106,11 @@ echo "2. Disable DoH"
 echo "3. Show DoH service status"
 echo "4. Test DoH functionality"
 echo "5. Verify DoH components"
+echo "6. Enable DoH Proxy (Advanced Use Only)"
+echo "7. Enable DoH Direct (Advanced Use Only)"
+echo "8. Disable DoH (without restarting dnsmasq)"
 echo ""
-read -p "Enter your choice (1-5): " choice
+read -p "Enter your choice (1-8): " choice
 case $choice in
     1)
         start_https_dns_proxy
@@ -102,6 +120,10 @@ case $choice in
         stty sane
         ;;
     2)
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        stop_https_dns_proxy
         stop_https_dns_proxy
         sudo systemctl restart dnsmasq
         echo "DoH disabled."
@@ -119,6 +141,26 @@ case $choice in
         else
             echo "Some DoH components are missing. Please check the installation."
         fi
+        ;;
+    6)
+        start_https_dns_proxy_proxy
+        echo "DoH Proxy enabled. Wait..."
+        sleep 2
+        stty sane
+        ;;
+    7)
+        start_https_dns_proxy_direct
+        echo "DoH Direct enabled. Wait..."
+        sleep 2
+        stty sane
+        ;;
+    8)
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        stop_https_dns_proxy
+        echo "DoH disabled."
         ;;
     *)
         echo "Invalid choice. Exiting."
