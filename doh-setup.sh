@@ -20,9 +20,13 @@ fi
 sudo systemctl stop systemd-resolved
 sudo systemctl disable systemd-resolved
 # Modify /etc/dnsmasq.conf
-if ! grep -q "^server=127.0.0.1#5053" /etc/dnsmasq.conf; then
+if ! grep -q "^server=127.0.0.1#5053\|^server=127.0.0.1#5054\|^server=127.0.0.1#5055\|^server=127.0.0.1#5056" /etc/dnsmasq.conf; then
     sudo sed -i '1s/^/server=127.0.0.1#5053\nserver=127.0.0.1#5054\nserver=127.0.0.1#5055\nserver=127.0.0.1#5056\n/' /etc/dnsmasq.conf
     sudo sed -i '/^server=127.0.0.1#5056/a dns-forward-max=1000' /etc/dnsmasq.conf
+
+# Uncomment the following rules after the DoH setup.
+    # sudo sed -i '/^dns-forward-max=1000/a no-resolv' /etc/dnsmasq.conf
+    # sudo sed -i '/^no-resolv /a no-poll' /etc/dnsmasq.conf
 fi
 # Create a function to start the https-dns-proxy instances
 start_https_dns_proxy_proxy () {
